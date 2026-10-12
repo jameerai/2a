@@ -1,0 +1,70 @@
+
+#include <stdio.h>
+
+#define N 5
+#define ITEMS 3
+
+int transactions[N][ITEMS] = {
+    {1, 1, 0},
+    {1, 1, 1},
+    {1, 0, 1},
+    {1, 1, 1},
+    {0, 1, 1}
+};
+
+char *items[] = {"Milk", "Bread", "Butter"};
+
+int main() {
+    int i, j, k, count;
+    float support, confidence;
+    float minSupport = 0.4;
+    float minConfidence = 0.6;
+
+    printf("Frequent Itemsets using Apriori\n");
+
+    for (i = 0; i < ITEMS; i++) {
+        count = 0;
+
+        for (j = 0; j < N; j++)
+            count += transactions[j][i];
+
+        support = (float)count / N;
+
+        if (support >= minSupport)
+            printf("%s: Support = %.2f\n", items[i], support);
+    }
+
+    printf("\nAssociation Rules:\n");
+
+    for (i = 0; i < ITEMS; i++) {
+        for (k = 0; k < ITEMS; k++) {
+            if (i == k)
+                continue;
+
+            int both = 0, antecedent = 0;
+
+            for (j = 0; j < N; j++) {
+                if (transactions[j][i])
+                    antecedent++;
+
+                if (transactions[j][i] &&
+                    transactions[j][k])
+                    both++;
+            }
+
+            support = (float)both / N;
+            confidence = antecedent ?
+                (float)both / antecedent : 0;
+
+            if (support >= minSupport &&
+                confidence >= minConfidence) {
+                printf("%s => %s | Support = %.2f, "
+                       "Confidence = %.2f\n",
+                       items[i], items[k],
+                       support, confidence);
+            }
+        }
+    }
+
+    return 0;
+}
